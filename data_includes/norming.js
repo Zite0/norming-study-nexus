@@ -1,25 +1,44 @@
 PennController.ResetPrefix(null);
 
-Sequence("init-recorder","welcome-message",randomize("reaction-time-exp"),"upload")
+Sequence("init-recorder","instruction-set","welcome-message",randomize("reaction-time-exp"),"upload")
 
-InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
+InitiateRecorder("TODO: SERVER-URL-HERE"
+	,
+	"This experiment collects audio recordings. **Once you grant it access to your recording device, 
+	you will be notified of whether you are being recorded by a label at the top of the page**"
+	)
+		.label("init-recorder");
 
 newTrial("welcome-message",
 	newHtml("welcome-message","welcome-message.html")
-	.print()
+		.print()
     ,
     newButton("begin","Click here to go over the instructions.")
-    .center()
-    .print()
-    .wait()
+		.center()
+		.print()
+		.wait()
 )
 
-// Instructions should go here. Will use template to show html files with the instructions. 
-// use buttons to continue to the next page.
-
-// TODO: figure out a way to have a recording trial run in the instructions.
-// maybe use conditional statements ?
-
+Template("instruction-seq.csv", row =>
+	// TODO: figure out a way to have a recording trial run in the instructions.
+	// maybe use conditional statements ?
+	newTrial("instructions"
+		,
+		newHtml("text",row.item)
+			.print()
+		,
+		// 7 seconds to read instructions. // should change this once practice logic is implemented.
+		newTimer("inst-timer",7000)
+			.start()
+			.wait()
+		,
+		newButton("continue","Click here to go continue.")
+			.center()
+			.print()
+			.wait()
+		)
+	)
+		
 
 
 Template("items.csv", row =>
