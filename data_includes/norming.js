@@ -32,6 +32,19 @@ Template("instruction-seq.csv", row =>
 			.start()
 			.wait()
 		,
+		// Conditional logic to test if there is practice for the user
+		(row.practice == "Y" ? 
+			// True
+			[
+				
+			] 
+			:
+			// False
+			[
+		
+			]
+		,
+		
 		newButton("continue","Click here to go continue.")
 			.center()
 			.print()

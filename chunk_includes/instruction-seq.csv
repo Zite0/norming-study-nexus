@@ -1,5 +1,6 @@
-group,item
-A,1,instr1.html
-A,2,instr2.html
-A,3,instr3.html
-A,4,instr4.html
+group,number,item,practice
+A,1,instr1.html,N
+A,2,instr2.html,N
+A,3,instr3.html,N
+A,4,instr4.html,N
+A,5,instr4.html,N
