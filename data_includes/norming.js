@@ -2,6 +2,8 @@ PennController.ResetPrefix(null);
 
 Sequence("init-recorder","instruction-set","welcome-message",randomize("reaction-time-exp"),"upload")
 
+// This should now work. Thanks, Bruce.
+// DO NOT commit URL of our server for security reasons. Only add it to the following line
 InitiateRecorder("TODO: SERVER-URL-HERE"
 	,
 	"This experiment collects audio recordings. **Once you grant it access to your recording device, 
