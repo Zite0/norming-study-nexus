@@ -1,6 +1,7 @@
 PennController.ResetPrefix(null);
 
-Sequence("init-recorder","instruction-set","welcome-message","start-experiment",randomize("reaction-time-exp"),"upload")
+// Not final sequence
+Sequence("init-recorder","welcome-message","instructions","start-experiment")
 
 // This should now work. Thanks, Bruce.
 // DO NOT commit URL of our server for security reasons. Only add it to the following line
@@ -61,7 +62,7 @@ Template("instruction-seq.csv", row =>
 			.wait()
 		)
 	)
-)
+
 
 // Start actual experiment
 newTrial("start-experiment",
