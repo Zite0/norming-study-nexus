@@ -1,15 +1,10 @@
 PennController.ResetPrefix(null);
 
-Sequence("init-recorder","instruction-set","welcome-message",randomize("reaction-time-exp"),"upload")
+Sequence("init-recorder","instruction-set","welcome-message","start-experiment",randomize("reaction-time-exp"),"upload")
 
 // This should now work. Thanks, Bruce.
 // DO NOT commit URL of our server for security reasons. Only add it to the following line
-InitiateRecorder("TODO: SERVER-URL-HERE"
-	,
-	"This experiment collects audio recordings. **Once you grant it access to your recording device, 
-	you will be notified of whether you are being recorded by a label at the top of the page**"
-	)
-		.label("init-recorder");
+InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
 
 newTrial("welcome-message",
 	newHtml("welcome-message","welcome-message.html")
@@ -31,7 +26,7 @@ Template("instruction-seq.csv", row =>
 		,
 		
 		// Conditional logic to test if there is practice for the user
-		(row.practice == "Y" ? 
+		row.practice == "Y" ? 
 			// True
 			[
 				clear()
@@ -40,7 +35,7 @@ Template("instruction-seq.csv", row =>
 					.center()
 					.print()
 				,
-				newImage("practice-image","verb-push.png")
+				newImage("practice-image",row.practice_item)
 					.center()
 					.size(120,120)
 					.print()
@@ -48,11 +43,15 @@ Template("instruction-seq.csv", row =>
 				newTimer("cooldown",1500)
 					.start()
 					.wait()
+				,
+				newText("explanation",`<p>In this case, you should say <b>"${row.sentence}"</b> as we explained before.</p>`)
+				    .center()
+				    .print()
 			] 
 			:
 			// False (do nothing)
 			[
-		
+				
 			]
 		,
 		
@@ -61,6 +60,19 @@ Template("instruction-seq.csv", row =>
 			.print()
 			.wait()
 		)
+	)
+)
+
+// Start actual experiment
+newTrial("start-experiment",
+	newText("start","You are now ready to begin.")
+		.center()
+		.print()
+	,
+	newButton("start-button","Click here to start experiment.")
+		.center()
+		.print()
+	
 	)
 		
 
