@@ -29,25 +29,34 @@ Template("instruction-seq.csv", row =>
 		newHtml("text",row.item)
 			.print()
 		,
-		// 7 seconds to read instructions. // should change this once practice logic is implemented.
-		newTimer("inst-timer",7000)
-			.start()
-			.wait()
-		,
+		
 		// Conditional logic to test if there is practice for the user
 		(row.practice == "Y" ? 
 			// True
 			[
-				
+				clear()
+				,
+				newText("practice-trial","<p>You will now practice. Please consider the following image. What would you say?</p>")
+					.center()
+					.print()
+				,
+				newImage("practice-image","verb-push.png")
+					.center()
+					.size(120,120)
+					.print()
+				,
+				newTimer("cooldown",1500)
+					.start()
+					.wait()
 			] 
 			:
-			// False
+			// False (do nothing)
 			[
 		
 			]
 		,
 		
-		newButton("continue","Click here to go continue.")
+		newButton("continue","Click here to continue.")
 			.center()
 			.print()
 			.wait()
@@ -71,8 +80,8 @@ Template("items.csv", row =>
 		newMediaRecorder("recorder","audio")
 			.record()
 		,
-		// record for 1.5 seconds immediately after image is printed on screen.
-		newTimer("recording",1500)
+		// record for 1.55 seconds immediately after image is printed on screen.
+		newTimer("recording",1550)
 			.start()
 			.wait()
 		,
@@ -81,6 +90,11 @@ Template("items.csv", row =>
 		,
 		// Calculate reaction time with variable
 		getVar("RT").set( v => Date.now() - v )
+		,
+		// 1 second cooldown after trial.
+		newTimer("cooldown",1000)
+			.start()
+			.wait()
      
 	).log("ReactionTime",getVar("RT"))
 )
