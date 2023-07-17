@@ -6,3 +6,30 @@
 .image123{
 	
 }
+
+.p{
+	text-align: center;
+}
+
+.welcome{
+	text-align: center;
+    text-align: center;
+    margin: 10px;
+    text-align: center;
+    border: solid;
+    border-radius: 25px;
+    border-width: 10px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 15px;
+    display: flex;
+    display: block;
+    width: 60%;
+}
+
+.body{
+	text-align: center;
+}
+
+
+

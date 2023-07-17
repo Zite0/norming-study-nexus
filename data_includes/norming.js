@@ -7,6 +7,7 @@ Sequence("init-recorder","welcome-message","instructions","start-experiment")
 // DO NOT commit URL of our server for security reasons. Only add it to the following line
 InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
 
+new_row.className = "welcome";
 newTrial("welcome-message",
 	newHtml("welcome-message","welcome-message.html")
 		.print()
@@ -77,7 +78,7 @@ newTrial("start-experiment",
 	)
 		
 
-
+new_row.className = "main";
 Template("items.csv", row =>
     newTrial("reaction-time-exp"
         ,
@@ -112,6 +113,7 @@ Template("items.csv", row =>
 	).log("ReactionTime",getVar("RT"))
 )
 
+</div>
 // Maybe try to upload recording after each image ? 
 UploadRecordings("upload")
 
