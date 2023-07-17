@@ -113,7 +113,6 @@ Template("items.csv", row =>
 	).log("ReactionTime",getVar("RT"))
 )
 
-</div>
 // Maybe try to upload recording after each image ? 
 UploadRecordings("upload")
 
