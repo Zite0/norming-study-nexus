@@ -1,6 +1,6 @@
 PennController.ResetPrefix();
 
-let unacc = ['fell','sank','burned','snore','floated','shaked','sneezed'];
+let unacc = ['fell','sank','burned','snored','shook','sneezed'];
 let unerg = ['ran','played','ate','slept','jumped','crawled'];
 let trans = ['threw','pushed','pulled','played'];
 
@@ -8,18 +8,18 @@ const POOL = {
     'fell': ['verb_fell.png','unacc'],
     'sank': ['verb_sank.png','unacc'],
     'burned': ['verb_burned.png','unacc'],
-    'snore': ['verb_snored.png','unacc'],
-    'floated': ['verb_floated.png','unacc'],
+    'snored': ['verb_snored.png','unacc'],
     'sneezed': ['verb_sneezed.png','unacc'],
     'ran': ['verb_ran.png','unerg'],
     'played': ['verb_played.png','unerg'],
-    'ate': ['verb]_ate.png','unerg'],
+    'ate': ['verb_ate.png','unerg'],
     'slept': ['verb_slept.png','unerg'],
     'jumped': ['verb_jumped.png','unerg'],
     'crawled': ['verb_crawled.png','unerg'],
     'threw' : ['verb_threw.png','trans'],
     'pushed': ['verb_pushed.png','trans'],
     'pulled': ['verb_pulled.png','trans'],
+    'shook' : ['verb_shook.png','unacc']
 }
 
 
@@ -33,7 +33,7 @@ const POOL = {
 function getRandomInt(min, max) {
     let my_min = Math.ceil(min);
     let my_max = Math.floor(max);
-    return floor(Math.random() * (my_max - my_min + 1)) + my_min;
+    return Math.floor(Math.random() * (my_max - my_min + 1)) + my_min;
 }
 
 /** 
@@ -63,7 +63,13 @@ function generateRandomCombination(array1,array2,array3,num){
 
 
 //[[unacc,unacc,unacc],[unerg,unerg,unerg],[trans,trans,trans]]
-const currentPool = generateRandomCombination(unacc,unerg,trans);
+const currentPool = generateRandomCombination(unacc,unerg,trans,3);
+
+newTrial('wait',
+    newTimer('counter',125)
+        .start()
+        .wait()
+)
 
 // Sorry lol
 AddTable('verbTable',
@@ -81,6 +87,11 @@ AddTable('verbTable',
     + `${currentPool[2][2]},${POOL[currentPool[2][2]][0]},${POOL[currentPool[2][2]][1]}`
 )
 
+newTrial('button',
+    newButton('click','click me!')
+        .print()
+        .wait()
+)
 
 newTrial('test',
     newImage('verb1',POOL[currentPool[0][0]][0])
