@@ -14,13 +14,12 @@ const POOL = {
     'ran': ['verb_ran.png','unerg'],
     'played': ['verb_played.png','unerg'],
     'ate': ['verb]_ate.png','unerg'],
-    'slept': ['verb_]slept.png','unerg'],
-    'jumped': ['verb_]jumped.png','unerg'],
+    'slept': ['verb_slept.png','unerg'],
+    'jumped': ['verb_jumped.png','unerg'],
     'crawled': ['verb_crawled.png','unerg'],
     'threw' : ['verb_threw.png','trans'],
     'pushed': ['verb_pushed.png','trans'],
     'pulled': ['verb_pulled.png','trans'],
-    'played': ['verb_played.png','trans']
 }
 
 
