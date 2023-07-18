@@ -7,7 +7,7 @@ Sequence("init-recorder","welcome-message","instructions","start-experiment")
 // DO NOT commit URL of our server for security reasons. Only add it to the following line
 InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
 
-new_row.className = "welcome";
+
 newTrial("welcome-message",
 	newHtml("welcome-message","welcome-message.html")
 		.print()
@@ -82,37 +82,40 @@ new_row.className = "main";
 Template("items.csv", row =>
     newTrial("reaction-time-exp"
         ,
+		newMediaRecorder("recorder","audio")
+		,
         newImage("verb-image",row.image)
             .center()
             .size(120,120)
-            .print()
-        ,
-		newVar("RT").global().set(v=>Date.now())
-		,
-		// add media recorder
-		// how to determine onset of speech ??
-		newMediaRecorder("recorder","audio")
-			.record()
 		,
 		// record for 1.55 seconds immediately after image is printed on screen.
-		newTimer("recording",1550)
+		newTimer("recording-timer",1550)
+		,
+		newTimer("timer",160)
+            .start()
+            .wait()
+		,
+		getImage("verb-image")
+            .print()
+        ,
+        getMediaRecorder("recorder")
+            .record()
+		,
+		getTimer("recording-timer")
 			.start()
 			.wait()
 		,
 		getMediaRecorder("recorder")
 			.stop()
 		,
-		// Calculate reaction time with variable
-		getVar("RT").set( v => Date.now() - v )
-		,
 		// 1 second cooldown after trial.
 		newTimer("cooldown",1000)
 			.start()
 			.wait()
      
-	).log("ReactionTime",getVar("RT"))
-)
+	)
+);
 
 // Maybe try to upload recording after each image ? 
-UploadRecordings("upload")
+UploadRecordings("upload");
 
