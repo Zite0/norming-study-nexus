@@ -72,9 +72,9 @@ function generateRandomCombination(array1,array2,array3,num){
 //[[unacc,unacc,unacc],[unerg,unerg,unerg],[trans,trans,trans]]
 const currentPool = generateRandomCombination(unacc,unerg,trans,3);
 
-Sequence('wait','verbTable','welcome-message','instructions','images','practice1','practice2');
+Sequence('wait','init-recorder','verb-table','welcome-message','instructions','images','practice1','practice2');
 
-//InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
+InitiateRecorder("TODO: SERVER-URL-HERE").label('init-recorder');
 
 // Wait for functions to run.
 newTrial('wait',
@@ -85,7 +85,7 @@ newTrial('wait',
 
 
 
-AddTable('verbTable',
+AddTable('verb-table',
     'Verb,Image,Type\n'+
     `${currentPool[0][0]},${POOL[currentPool[0][0]][0]},${POOL[currentPool[0][0]][1]}\n`
     + `${currentPool[0][1]},${POOL[currentPool[0][1]][0]},${POOL[currentPool[0][1]][1]}\n`
@@ -114,7 +114,8 @@ newTrial('instructions',
     newHtml('text','instr1.html')
         .print()
     ,
-    newButton('begin','Click here to continue.')
+    newButton('begin','Click here to continue')
+        .center()
         .print()
         .wait()
     ,
@@ -123,10 +124,12 @@ newTrial('instructions',
     newHtml('text2','instr2.html')
         .print()
     ,
-    newButton('begin2','Click here to continue.')
+    getButton('begin')
+        .center()
         .print()
         .wait()
-    ,clear()
+    ,
+    clear()
 )
 
 
@@ -179,7 +182,7 @@ newTrial('images',
     newHtml('img-instr','verb-instr.html')
         .print()
     ,
-    newCanvas('trial-images',460,460)
+    newCanvas('trial-images-practice',460,480)
         .center()
         
         // First Row
@@ -216,57 +219,59 @@ newTrial('images',
 
     ,
     newButton('button','Click here to continue')
-        .print()
-        .wait()
-);
-
-newTrial('practice1',
-    newText('instr','<p> You will now have the chance to practice. Remember that you must say the verb as soon as the image appears on screen.</p>')
-        .print()
-    ,
-    newButton('button','Click here to practice')
+        .center()
         .print()
         .wait()
     ,
     clear()
     ,
-    newImage('practice-image',POOL[currentPool[0][0]][0])
+    newText('instr','<p> You will now have the chance to practice. Remember that you must say the verb as soon as the image appears on screen.</p>')
+        .print()
+    ,
+    getButton('button')
+        .center()
+        .print()
+        .wait()
+    ,
+    clear()
+    ,
+    newImage('practice-image1',POOL[currentPool[0][0]][0])
         .center()
         .size(120,120)
         .print()
     ,
-    newTimer("cooldown",1500)
+    newTimer('cooldown1',1500)
         .start()
         .wait()
     ,
-    newText('explanation',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+    newText('explanation1',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
     ,getButton('button')
         .print()
         .wait()
-)
-
-newTrial('practice2',
-    newText('instr','<p> You will practice one more time.</p>')
+    ,
+    clear()
+    ,
+    newText('instr1','<p> You will practice one more time.</p>')
         .print()
     ,
-    newButton('button','Click here to practice')
+    getButton('button')
         .print()
         .wait()
     ,
     clear()
     ,
-    newImage('practice-image',POOL[currentPool[1][0]][0])
+    newImage('practice-image2',POOL[currentPool[1][0]][0])
         .center()
         .size(120,120)
         .print()
     ,
-    newTimer("cooldown",1500)
+    newTimer('cooldown',1500)
         .start()
         .wait()
     ,
-    newText('explanation',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+    newText('explanation2',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
     ,
@@ -279,11 +284,119 @@ newTrial('practice2',
     newText('final-instr','<p> You are almost ready to begin. Please take a final look at the images we will use: </p>')
         .print()
     ,
-    getCanvas('trial-images')
+    getCanvas('trial-images-practice')
+        .center()
         .print()
     ,
     getButton('button')
+        .center()
         .print()
         .wait()
-)
+);
+
+Template('verb-table', row =>
+    newTrial('reaction-time-exp',
+        newMediaRecorder('recorder','audio')
+        ,
+        newImage('verb-image',row.Image)
+            .center()
+            .size(120,120)
+        ,
+        newTimer('recording-timer',1550)
+        ,
+        newTimer('timer',160)
+            .start()
+            .wait()
+        ,
+        getImage("verb-image")
+        .   print()
+        ,
+        getMediaRecorder("recorder")
+            .record()
+        ,
+        getTimer('recording-timer')
+            .start()
+            .wait()
+        ,
+        getMediaRecorder('recorder')
+            .stop()
+        ,
+        newTimer("cooldown",1000)
+			.start()
+			.wait()
+    )
+    .log('type',row.Type)
+    .log('verb',row.Verb)
+);
+
+UploadRecordings('upload');
+
+
+
+// newTrial('practice1',
+//     newText('instr','<p> You will now have the chance to practice. Remember that you must say the verb as soon as the image appears on screen.</p>')
+//         .print()
+//     ,
+//     newButton('button','Click here to practice')
+//         .print()
+//         .wait()
+//     ,
+//     clear()
+//     ,
+//     newImage('practice-image',POOL[currentPool[0][0]][0])
+//         .center()
+//         .size(120,120)
+//         .print()
+//     ,
+//     newTimer("cooldown",1500)
+//         .start()
+//         .wait()
+//     ,
+//     newText('explanation',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+//         .center()
+//         .print()
+//     ,getButton('button')
+//         .print()
+//         .wait()
+// )
+
+// newTrial('practice2',
+//     newText('instr','<p> You will practice one more time.</p>')
+//         .print()
+//     ,
+//     newButton('button','Click here to practice')
+//         .print()
+//         .wait()
+//     ,
+//     clear()
+//     ,
+//     newImage('practice-image',POOL[currentPool[1][0]][0])
+//         .center()
+//         .size(120,120)
+//         .print()
+//     ,
+//     newTimer("cooldown",1500)
+//         .start()
+//         .wait()
+//     ,
+//     newText('explanation',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+//         .center()
+//         .print()
+//     ,
+//     getButton('button')
+//         .print()
+//         .wait()
+//     ,
+//     clear()
+//     ,
+//     newText('final-instr','<p> You are almost ready to begin. Please take a final look at the images we will use: </p>')
+//         .print()
+//     ,
+//     getCanvas('trial-images')
+//         .print()
+//     ,
+//     getButton('button')
+//         .print()
+//         .wait()
+// )
     
