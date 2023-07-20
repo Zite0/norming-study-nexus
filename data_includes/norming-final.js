@@ -72,6 +72,12 @@ function generateRandomCombination(array1,array2,array3,num){
 //[[unacc,unacc,unacc],[unerg,unerg,unerg],[trans,trans,trans]]
 const currentPool = generateRandomCombination(unacc,unerg,trans,3);
 
+Sequence('wait','init-recorder','verbTable','welcome-message','images','practice1');
+
+InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
+
+
+
 // Wait for functions to run.
 newTrial('wait',
     newTimer('counter',125)
@@ -79,7 +85,7 @@ newTrial('wait',
         .wait()
 )
 
-Sequence('wait','init-recorder','welcome-message','instructions','start-experiment');
+
 
 AddTable('verbTable',
     'Verb,Image,Type\n'+
@@ -106,7 +112,7 @@ newTrial('welcome-message',
 		.wait()
 )
 
-newTrial('welcome-message',
+newTrial('instructions',
     newHtml('text','instr1.html')
         .print()
     ,
@@ -118,7 +124,11 @@ newTrial('welcome-message',
     ,
     newHtml('text2','instr2.html')
         .print()
+    ,
+    newButton('begin2','Click here to continue.')
+        .print()
         .wait()
+    ,clear()
 )
 
 
@@ -168,39 +178,106 @@ newTrial('images',
     ,
     newText('verb9-text',currentPool[2][2])
     ,
-    newCanvas('instruction-test',600,600)
+    newHtml('img-instr','verb-instr.html')
+    ,
+    newCanvas('trial-images',460,460)
         .center()
+        
+        // First Row
         .add(0,0,getImage('verb1'))
-        .add(130,0,getText('verb1-text'))
+        .add(37,130,getText('verb1-text'))
 
         .add(150,0,getImage('verb2'))
-        .add(160,0,getText('verb2-text'))
+        .add(190,130,getText('verb2-text'))
 
         .add(300,0,getImage('verb3'))
-        .add(310,0,getImage('verb3-text'))
+        .add(337,130,getText('verb3-text'))
 
+        // Second Row
         .add(0,150,getImage('verb4'))
-        .add(0,160,getImage('verb4-text'))
+        .add(37,280,getText('verb4-text'))
 
         .add(150,150,getImage('verb5'))
-        .add(150,160,getImage('verb5-text'))
+        .add(190,280,getText('verb5-text'))
 
         .add(300,150,getImage('verb6'))
-        .add(300,160,getImage('verb6-text'))
+        .add(337,280,getText('verb6-text'))
 
+        // Third Row
         .add(0,300,getImage('verb7'))
-        .add(0,310,getImage('verb7-text'))
+        .add(37,430,getText('verb7-text'))
 
         .add(150,300,getImage('verb8'))
-        .add(150,310,getImage('verb8-text'))
+        .add(190,430,getText('verb8-text'))
 
         .add(300,300,getImage('verb9'))
-        .add(150,310,getImage('verb9-text'))
+        .add(337,430,getText('verb9-text'))
 
         .print()
 
     ,
-    newButton("button",'Click here to continue.')
+    newButton('button','Click here to continue')
         .print()
         .wait()
 );
+
+newTrial('practice1',
+    newText('instr','<p> You will now have the chance to practice. Remember that you must say the verb as soon as the image appears on screen.</p>')
+        .print()
+    ,
+    newButton('button','Click here to practice')
+        .print()
+        .wait()
+    ,
+    clear()
+    ,
+    newImage('practice-image',POOL[currentPool[0][0]][0])
+        .center()
+        .size(120,120)
+        .print()
+    ,
+    newTimer("cooldown",1500)
+        .start()
+        .wait()
+    ,
+    newText('explanation',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+        .center()
+        .print()
+)
+
+newTrial('practice2',
+    newText('instr','<p> You will practice one more time.</p>')
+        .print()
+    ,
+    newButton('button','Click here to practice')
+        .print()
+        .wait()
+    ,
+    clear()
+    ,
+    newImage('practice-image',POOL[currentPool[1][0]][0])
+        .center()
+        .size(120,120)
+        .print()
+    ,
+    newTimer("cooldown",1500)
+        .start()
+        .wait()
+    ,
+    newText('explanation',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+        .center()
+        .print()
+    ,
+    clear()
+    ,
+    newText('final-instr','<p> You are almost ready to begin. Please take a final look at the images we will use: </p>')
+        .print()
+    ,
+    getCanvas('trial-images')
+        .print()
+    ,
+    getButton('button')
+        .print()
+        .wait()
+)
+    
