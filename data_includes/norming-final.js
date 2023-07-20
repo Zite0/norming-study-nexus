@@ -72,11 +72,9 @@ function generateRandomCombination(array1,array2,array3,num){
 //[[unacc,unacc,unacc],[unerg,unerg,unerg],[trans,trans,trans]]
 const currentPool = generateRandomCombination(unacc,unerg,trans,3);
 
-Sequence('wait','init-recorder','verbTable','welcome-message','images','practice1');
+Sequence('wait','verbTable','welcome-message','instructions','images','practice1','practice2');
 
-InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
-
-
+//InitiateRecorder("TODO: SERVER-URL-HERE").label("init-recorder");
 
 // Wait for functions to run.
 newTrial('wait',
@@ -179,6 +177,7 @@ newTrial('images',
     newText('verb9-text',currentPool[2][2])
     ,
     newHtml('img-instr','verb-instr.html')
+        .print()
     ,
     newCanvas('trial-images',460,460)
         .center()
@@ -243,6 +242,9 @@ newTrial('practice1',
     newText('explanation',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
+    ,getButton('button')
+        .print()
+        .wait()
 )
 
 newTrial('practice2',
@@ -267,6 +269,10 @@ newTrial('practice2',
     newText('explanation',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
+    ,
+    getButton('button')
+        .print()
+        .wait()
     ,
     clear()
     ,
