@@ -88,9 +88,6 @@ Template("items.csv", row =>
             .center()
             .size(120,120)
 		,
-		// record for 1.55 seconds immediately after image is printed on screen.
-		newTimer("recording-timer",1550)
-		,
 		newTimer("timer",160)
             .start()
             .wait()

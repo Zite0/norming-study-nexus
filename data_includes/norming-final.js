@@ -1,34 +1,5 @@
 PennController.ResetPrefix();
 
-let unacc = ['fell','sank','burned','snored','shook','sneezed','floated'];
-let unerg = ['ran','played','ate','slept','jumped','crawled','played'];
-let trans = ['threw','pushed','pulled','baked','taught','watched','wrote','bought'];
-
-const POOL = {
-    'fell': ['verb_fell.png','unacc'],
-    'sank': ['verb_sank.png','unacc'],
-    'burned': ['verb_burned.png','unacc'],
-    'snored': ['verb_snored.png','unacc'],
-    'sneezed': ['verb_sneezed.png','unacc'],
-    'ran': ['verb_ran.png','unerg'],
-    'played': ['verb_played.png','unerg'],
-    'ate': ['verb_ate.png','unerg'],
-    'slept': ['verb_slept.png','unerg'],
-    'jumped': ['verb_jumped.png','unerg'],
-    'crawled': ['verb_crawled.png','unerg'],
-    'threw' : ['verb_threw.png','trans'],
-    'pushed': ['verb_pushed.png','trans'],
-    'pulled': ['verb_pulled.png','trans'],
-    'shook' : ['verb_shook.png','unacc'],
-    'floated' : ['verb_floated.png','unacc'],
-    'baked' : ['verb_baked.png','trans'],
-    'taught' : ['verb_taught.png','trans'],
-    'watched' : ['verb_watched.png', 'trans'],
-    'wrote' : ['verb_wrote.png','trans'],
-    'bought' : ['verb_bought.png','trans'],
-}
-
-
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
  * The value is no lower than min (or the next integer greater than min
@@ -43,62 +14,140 @@ function getRandomInt(min, max) {
 }
 
 /** 
- * Returns an array of 3*num random elements from each array. Requires that
- * num be less than or equal to the length of any of the input arrays. 
- * This function modifies the original arrays. 
+ * Returns a 2 dimensional array of 2 random elements from each array in each subarrau. 
+ * Requires that num be less than or equal to the length of any of the input arrays. 
+ * This function does not modify the constant of the original array.
  */
-function generateRandomCombination(array1,array2,array3,num){
-  let res = [[],[],[]];
+function generateRandomCombination(array1,array2,num){
 
-  for (let i = 0; i < num; i++){
-    let randomInt = getRandomInt(0,array1.length-1);
-    res[0].push(array1[randomInt]);
-    array1.splice(randomInt,1);
+    let newArray1 = [...array1];
+    let newArray2 = [...array2];
 
-    randomInt = getRandomInt(0,array2.length-1);
-    res[1].push(array2[randomInt]);
-    array2.splice(randomInt,1)
+    let res = [[],[]];
+
+    for (let i = 0; i < num; i++){
+        let randomInt = getRandomInt(0,newArray1.length-1);
+        res[0].push(newArray1[randomInt]);
+        newArray1.splice(randomInt,1);
+
+        randomInt = getRandomInt(0,newArray2.length-1);
+        res[1].push(newArray2[randomInt]);
+        newArray2.splice(randomInt,1);
     
-    randomInt = getRandomInt(0,array3.length-1);
-    res[2].push(array3[randomInt]);
-    array3.splice(randomInt,1)
-    
-  }
-
+    }
   return res;
 }
 
+/**
+ * This function shuffles a given array 'array' in place using 
+ * the Fisher-Yates shuffling algorithm.
+ */
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+  
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+  
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+  
+    return array;
+}
 
-//[[unacc,unacc,unacc],[unerg,unerg,unerg],[trans,trans,trans]]
-const currentPool = generateRandomCombination(unacc,unerg,trans,3);
+/**
+ * Function that generates a block of verbs that contains 40 equally distributed verbs
+ * from 2 dimensional array 'wordArray', where each row contains unaccusative or
+ * unergative verbs. 
+ */
+function generateBlock(wordArray){
+    let array = new Array(40);
 
-Sequence('wait','init-recorder','verb-table','welcome-message','instructions','images','practice1','practice2');
+    array.fill(wordArray[0][0],0,10);
+    array.fill(wordArray[0][1],10,20);
+    array.fill(wordArray[1][0],20,30);
+    array.fill(wordArray[1][1],30,40);
+
+    shuffle(array);
+
+    return array;
+}
+
+/**
+ * Creates an array of Strings from a given pool of verbs. The length of this 
+ * list will be 40*n, where 'n' is the number of desired repetitions.
+ */
+function generateTable(wordArray,n){
+    let res = []
+    
+    for (let i = 0; i < n; i++){
+        res = res.concat(generateBlock(wordArray));
+    }
+
+    return res
+}
+
+/** This function returns a table in a comma separated value string format,
+ * so that it can be used by the PCIbex addTable function. 'list' is an
+ * array of strings. The columns of this list will be 'verb,image,type'.
+ * Verb is the actual verb, image is the file name of the corresponding, and 
+ * type can be either 'unacc' or 'unerg', depending on the verb.
+ */
+function tableToCsv(masterTable,corresp){
+    let res = 'verb,image,type\n'
+
+    for (let i = 0; i < masterTable.length -1;i++){
+        res += `${masterTable[i]},${corresp[masterTable[i]][0]},${corresp[masterTable[i]][1]}\n`
+    }
+    let lastIndex = masterTable.length - 1;
+    res += `${masterTable[lastIndex]},${corresp[masterTable[lastIndex]][0]},${corresp[masterTable[lastIndex]][1]}`
+    return res;
+}
+
+// Constants
+const UNACC = ['fell','sank','burned','snored','shook','sneezed','floated'];
+const UNERG = ['ran','played','ate','slept','jumped','crawled','played'];
+const POOL = {
+    'fell': ['verb_fell.png','unacc'],
+    'sank': ['verb_sank.png','unacc'],
+    'burned': ['verb_burned.png','unacc'],
+    'snored': ['verb_snored.png','unacc'],
+    'sneezed': ['verb_sneezed.png','unacc'],
+    'ran': ['verb_ran.png','unerg'],
+    'played': ['verb_played.png','unerg'],
+    'ate': ['verb_ate.png','unerg'],
+    'slept': ['verb_slept.png','unerg'],
+    'jumped': ['verb_jumped.png','unerg'],
+    'crawled': ['verb_crawled.png','unerg'],
+    'shook' : ['verb_shook.png','unacc'],
+    'floated' : ['verb_floated.png','unacc'],
+}
+
+const CURRENT_POOL = generateRandomCombination(UNACC,UNERG,2);
+const MASTER = generateTable(CURRENT_POOL,5);
+const TABLE = tableToCsv(MASTER,POOL);
+
+
+
+Sequence('wait','init-recorder','verb-table','welcome-message','instructions','images',randomize('reaction-time-exp'));
 
 InitiateRecorder("TODO: SERVER-URL-HERE").label('init-recorder');
 
 // Wait for functions to run.
 newTrial('wait',
-    newTimer('counter',125)
+    newTimer('counter',310)
         .start()
         .wait()
 )
 
 
 
-AddTable('verb-table',
-    'Verb,Image,Type\n'+
-    `${currentPool[0][0]},${POOL[currentPool[0][0]][0]},${POOL[currentPool[0][0]][1]}\n`
-    + `${currentPool[0][1]},${POOL[currentPool[0][1]][0]},${POOL[currentPool[0][1]][1]}\n`
-    + `${currentPool[0][2]},${POOL[currentPool[0][2]][0]},${POOL[currentPool[0][2]][1]}\n`
-
-    + `${currentPool[1][0]},${POOL[currentPool[1][0]][0]},${POOL[currentPool[1][0]][1]}\n`
-    + `${currentPool[1][1]},${POOL[currentPool[1][1]][0]},${POOL[currentPool[1][1]][1]}\n`
-    + `${currentPool[1][2]},${POOL[currentPool[1][2]][0]},${POOL[currentPool[1][2]][1]}\n`
-
-    + `${currentPool[2][0]},${POOL[currentPool[2][0]][0]},${POOL[currentPool[2][0]][1]}\n`
-    + `${currentPool[2][1]},${POOL[currentPool[2][1]][0]},${POOL[currentPool[2][1]][1]}\n`
-    + `${currentPool[2][2]},${POOL[currentPool[2][2]][0]},${POOL[currentPool[2][2]][1]}`
-)
+AddTable('verb-table',TABLE);
 
 newTrial('welcome-message',
 	newHtml('welcome-message','welcome-message.html')
@@ -132,57 +181,31 @@ newTrial('instructions',
     clear()
 )
 
-
 newTrial('images',
-    newImage('verb1',POOL[currentPool[0][0]][0])
+    newImage('verb1',POOL[CURRENT_POOL[0][0]][0])
         .size(120,120)
     ,
-    newText('verb1-text',currentPool[0][0])
+    newText('verb1-text',CURRENT_POOL[0][0])
     ,
-    newImage('verb2',POOL[currentPool[0][1]][0])
+    newImage('verb2',POOL[CURRENT_POOL[0][1]][0])
         .size(120,120)
     ,
-    newText('verb2-text',currentPool[0][1])
+    newText('verb2-text',CURRENT_POOL[0][1])
     ,
-    newImage('verb3',POOL[currentPool[0][2]][0])
+    newImage('verb3',POOL[CURRENT_POOL[1][0]][0])
         .size(120,120)
     ,
-    newText('verb3-text',currentPool[0][2])
+    newText('verb3-text',CURRENT_POOL[1][0])
     ,
-    newImage('verb4',POOL[currentPool[1][0]][0])
+    newImage('verb4',POOL[CURRENT_POOL[1][1]][0])
         .size(120,120)
     ,
-    newText('verb4-text',currentPool[1][0])
-    ,
-    newImage('verb5',POOL[currentPool[1][1]][0])
-        .size(120,120)
-    ,
-    newText('verb5-text',currentPool[1][1])
-    ,
-    newImage('verb6',POOL[currentPool[1][2]][0])
-        .size(120,120)
-    ,
-    newText('verb6-text',currentPool[1][2])
-    ,
-    newImage('verb7',POOL[currentPool[2][0]][0])
-        .size(120,120)
-    ,
-    newText('verb7-text',currentPool[2][0])
-    ,
-    newImage('verb8',POOL[currentPool[2][1]][0])
-        .size(120,120)
-    ,
-    newText('verb8-text',currentPool[2][1])
-    ,
-    newImage('verb9',POOL[currentPool[2][2]][0])
-        .size(120,120)
-    ,
-    newText('verb9-text',currentPool[2][2])
+    newText('verb4-text',CURRENT_POOL[1][1])
     ,
     newHtml('img-instr','verb-instr.html')
         .print()
     ,
-    newCanvas('trial-images-practice',460,480)
+    newCanvas('trial-images-practice',340,360)
         .center()
         
         // First Row
@@ -192,28 +215,12 @@ newTrial('images',
         .add(150,0,getImage('verb2'))
         .add(190,130,getText('verb2-text'))
 
-        .add(300,0,getImage('verb3'))
-        .add(337,130,getText('verb3-text'))
-
         // Second Row
-        .add(0,150,getImage('verb4'))
-        .add(37,280,getText('verb4-text'))
+        .add(0,150,getImage('verb3'))
+        .add(37,280,getText('verb3-text'))
 
-        .add(150,150,getImage('verb5'))
-        .add(190,280,getText('verb5-text'))
-
-        .add(300,150,getImage('verb6'))
-        .add(337,280,getText('verb6-text'))
-
-        // Third Row
-        .add(0,300,getImage('verb7'))
-        .add(37,430,getText('verb7-text'))
-
-        .add(150,300,getImage('verb8'))
-        .add(190,430,getText('verb8-text'))
-
-        .add(300,300,getImage('verb9'))
-        .add(337,430,getText('verb9-text'))
+        .add(150,150,getImage('verb4'))
+        .add(190,280,getText('verb4-text'))
 
         .print()
 
@@ -235,7 +242,7 @@ newTrial('images',
     ,
     clear()
     ,
-    newImage('practice-image1',POOL[currentPool[0][0]][0])
+    newImage('practice-image1',POOL[CURRENT_POOL[0][0]][0])
         .center()
         .size(120,120)
         .print()
@@ -244,7 +251,7 @@ newTrial('images',
         .start()
         .wait()
     ,
-    newText('explanation1',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+    newText('explanation1',`<p>In this case, you should say <b>"${CURRENT_POOL[0][0]}"</b>.</p> <p>Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
     ,getButton('button')
@@ -262,7 +269,7 @@ newTrial('images',
     ,
     clear()
     ,
-    newImage('practice-image2',POOL[currentPool[1][0]][0])
+    newImage('practice-image2',POOL[CURRENT_POOL[1][0]][0])
         .center()
         .size(120,120)
         .print()
@@ -271,7 +278,7 @@ newTrial('images',
         .start()
         .wait()
     ,
-    newText('explanation2',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
+    newText('explanation2',`<p>In this case, you should say <b>"${CURRENT_POOL[1][0]}"</b>.</p> <p>Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
         .center()
         .print()
     ,
@@ -302,14 +309,14 @@ Template('verb-table', row =>
             .center()
             .size(120,120)
         ,
-        newTimer('recording-timer',1550)
+        newTimer('recording-timer',2000)
         ,
         newTimer('timer',160)
             .start()
             .wait()
         ,
         getImage("verb-image")
-        .   print()
+            .print()
         ,
         getMediaRecorder("recorder")
             .record()
@@ -330,73 +337,3 @@ Template('verb-table', row =>
 );
 
 UploadRecordings('upload');
-
-
-
-// newTrial('practice1',
-//     newText('instr','<p> You will now have the chance to practice. Remember that you must say the verb as soon as the image appears on screen.</p>')
-//         .print()
-//     ,
-//     newButton('button','Click here to practice')
-//         .print()
-//         .wait()
-//     ,
-//     clear()
-//     ,
-//     newImage('practice-image',POOL[currentPool[0][0]][0])
-//         .center()
-//         .size(120,120)
-//         .print()
-//     ,
-//     newTimer("cooldown",1500)
-//         .start()
-//         .wait()
-//     ,
-//     newText('explanation',`<p>In this case, you should say <b>"${currentPool[0][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
-//         .center()
-//         .print()
-//     ,getButton('button')
-//         .print()
-//         .wait()
-// )
-
-// newTrial('practice2',
-//     newText('instr','<p> You will practice one more time.</p>')
-//         .print()
-//     ,
-//     newButton('button','Click here to practice')
-//         .print()
-//         .wait()
-//     ,
-//     clear()
-//     ,
-//     newImage('practice-image',POOL[currentPool[1][0]][0])
-//         .center()
-//         .size(120,120)
-//         .print()
-//     ,
-//     newTimer("cooldown",1500)
-//         .start()
-//         .wait()
-//     ,
-//     newText('explanation',`<p>In this case, you should say <b>"${currentPool[1][0]}"</b> as we explained before. Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
-//         .center()
-//         .print()
-//     ,
-//     getButton('button')
-//         .print()
-//         .wait()
-//     ,
-//     clear()
-//     ,
-//     newText('final-instr','<p> You are almost ready to begin. Please take a final look at the images we will use: </p>')
-//         .print()
-//     ,
-//     getCanvas('trial-images')
-//         .print()
-//     ,
-//     getButton('button')
-//         .print()
-//         .wait()
-// )
-    
