@@ -99,44 +99,61 @@ function generateTable(wordArray,n){
  * type can be either 'unacc' or 'unerg', depending on the verb.
  */
 function tableToCsv(masterTable,corresp){
-    let res = 'verb,image,type\n'
+    let res = 'verb,image,type\n';
 
     for (let i = 0; i < masterTable.length -1;i++){
-        res += `${masterTable[i]},${corresp[masterTable[i]][0]},${corresp[masterTable[i]][1]}\n`
+        res += `${masterTable[i]},${corresp[masterTable[i]][0]},${corresp[masterTable[i]][1]}\n`;
     }
     let lastIndex = masterTable.length - 1;
-    res += `${masterTable[lastIndex]},${corresp[masterTable[lastIndex]][0]},${corresp[masterTable[lastIndex]][1]}`
+    res += `${masterTable[lastIndex]},${corresp[masterTable[lastIndex]][0]},${corresp[masterTable[lastIndex]][1]}`;
+    return res;
+}
+/**
+ * Return a string in csv format that is to be used for the practice trials. 
+ * It will have 8 rows. wordArray is 2 dimensional matrix of 2 rows and 2 columns.
+ */
+function makePracticeTable(wordArray){
+    res = 'verb\n'
+    + `${wordArray[0][1]}\n`
+    + `${wordArray[1][0]}\n`
+    + `${wordArray[0][0]}\n`
+    + `${wordArray[1][0]}\n`
+    + `${wordArray[0][0]}\n`
+    + `${wordArray[1][1]}\n`
+    + `${wordArray[0][1]}\n`
+    + `${wordArray[1][1]}`;
+
     return res;
 }
 
 // Constants
-const UNACC = ['fell','sank','burned','snored','shook','sneezed','floated'];
-const UNERG = ['ran','played','ate','slept','jumped','crawled','played'];
+const UNACC = ['fall','sink','burn','snore','shake','sneeze','float'];
+const UNERG = ['run','play','eat','sleep','jump','crawl','play'];
 const POOL = {
-    'fell': ['verb_fell.png','unacc'],
-    'sank': ['verb_sank.png','unacc'],
-    'burned': ['verb_burned.png','unacc'],
-    'snored': ['verb_snored.png','unacc'],
-    'sneezed': ['verb_sneezed.png','unacc'],
-    'ran': ['verb_ran.png','unerg'],
-    'played': ['verb_played.png','unerg'],
-    'ate': ['verb_ate.png','unerg'],
-    'slept': ['verb_slept.png','unerg'],
-    'jumped': ['verb_jumped.png','unerg'],
-    'crawled': ['verb_crawled.png','unerg'],
-    'shook' : ['verb_shook.png','unacc'],
-    'floated' : ['verb_floated.png','unacc'],
+    'fall': ['verb_fell.png','unacc'],
+    'sink': ['verb_sank.png','unacc'],
+    'burn': ['verb_burned.png','unacc'],
+    'snore': ['verb_snored.png','unacc'],
+    'sneeze': ['verb_sneezed.png','unacc'],
+    'run': ['verb_ran.png','unerg'],
+    'play': ['verb_played.png','unerg'],
+    'eat': ['verb_ate.png','unerg'],
+    'sleep': ['verb_slept.png','unerg'],
+    'jump': ['verb_jumped.png','unerg'],
+    'crawl': ['verb_crawled.png','unerg'],
+    'shake' : ['verb_shook.png','unacc'],
+    'float' : ['verb_floated.png','unacc'],
 }
 
 const CURRENT_POOL = generateRandomCombination(UNACC,UNERG,2);
 const MASTER = generateTable(CURRENT_POOL,5);
 const TABLE = tableToCsv(MASTER,POOL);
+const PRACTICE = makePracticeTable(CURRENT_POOL);
 
 
 
-Sequence('wait','init-recorder','verb-table','welcome-message','instructions','images',randomize('reaction-time-exp'));
-
-InitiateRecorder("TODO: SERVER-URL-HERE").label('init-recorder');
+Sequence('wait','welcome-message','mic-setup','init-recorder','instructions','images','practice','start','reaction-time-exp','upload');
+InitiateRecorder('TODO: SERVER-URL-HERE','').label('init-recorder');
 
 // Wait for functions to run.
 newTrial('wait',
@@ -145,9 +162,8 @@ newTrial('wait',
         .wait()
 )
 
-
-
 AddTable('verb-table',TABLE);
+AddTable('practice-table',PRACTICE);
 
 newTrial('welcome-message',
 	newHtml('welcome-message','welcome-message.html')
@@ -157,6 +173,16 @@ newTrial('welcome-message',
 		.center()
 		.print()
 		.wait()
+);
+
+newTrial('mic-setup',
+    newHtml('setup','mic-instr.html')
+        .print()
+    ,
+    newButton('continue','Click here to continue')
+        .center()
+        .print()
+        .wait()
 )
 
 newTrial('instructions',
@@ -179,7 +205,7 @@ newTrial('instructions',
         .wait()
     ,
     clear()
-)
+);
 
 newTrial('images',
     newImage('verb1',POOL[CURRENT_POOL[0][0]][0])
@@ -239,73 +265,100 @@ newTrial('images',
         .center()
         .print()
         .wait()
-    ,
-    clear()
-    ,
-    newImage('practice-image1',POOL[CURRENT_POOL[0][0]][0])
-        .center()
-        .size(120,120)
-        .print()
-    ,
-    newTimer('cooldown1',1500)
-        .start()
-        .wait()
-    ,
-    newText('explanation1',`<p>In this case, you should say <b>"${CURRENT_POOL[0][0]}"</b>.</p> <p>Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
-        .center()
-        .print()
-    ,getButton('button')
-        .print()
-        .wait()
-    ,
-    clear()
-    ,
-    newText('instr1','<p> You will practice one more time.</p>')
-        .print()
-    ,
-    getButton('button')
-        .print()
-        .wait()
-    ,
-    clear()
-    ,
-    newImage('practice-image2',POOL[CURRENT_POOL[1][0]][0])
-        .center()
-        .size(120,120)
-        .print()
-    ,
-    newTimer('cooldown',1500)
-        .start()
-        .wait()
-    ,
-    newText('explanation2',`<p>In this case, you should say <b>"${CURRENT_POOL[1][0]}"</b>.</p> <p>Please keep in mind that you will not see the correct answer during the actual experiment.</p>`)
-        .center()
-        .print()
-    ,
-    getButton('button')
-        .print()
-        .wait()
-    ,
-    clear()
-    ,
-    newText('final-instr','<p> You are almost ready to begin. Please take a final look at the images we will use: </p>')
-        .print()
-    ,
-    getCanvas('trial-images-practice')
-        .center()
-        .print()
-    ,
-    getButton('button')
-        .center()
-        .print()
-        .wait()
 );
 
+Template('practice-table',row =>
+    newTrial('practice',
+        newImage('verb',POOL[row.verb][[0]])
+            .size(150,150)
+            .center()
+            .print()
+        ,
+        newTimer('timer',2100)
+            .start()
+            .wait()
+        ,
+        newText('explanation', `<p style="text-align:center">The correct answer is <b>${row.verb}</b>.</p>`)
+            .print("center at 50vw", "middle at 50vh")
+        ,
+        getTimer('timer')
+            .start()
+            .wait()
+    )
+)
+
+newTrial('start',
+    newText('practice',"<p>Every 20 trials, you will have a short break of 10 seconds, after which you'll see a button to continue with the experiment.</p>")
+        .print()
+    ,
+    newText('guide','<p>For reference, take a look at the verbs before you start: </p>')
+        .print()
+    ,
+    newImage('verb1',POOL[CURRENT_POOL[0][0]][0])
+        .size(120,120)
+    ,
+    newText('verb1-text',CURRENT_POOL[0][0])
+    ,
+    newImage('verb2',POOL[CURRENT_POOL[0][1]][0])
+        .size(120,120)
+    ,
+    newText('verb2-text',CURRENT_POOL[0][1])
+    ,
+    newImage('verb3',POOL[CURRENT_POOL[1][0]][0])
+        .size(120,120)
+    ,
+    newText('verb3-text',CURRENT_POOL[1][0])
+    ,
+    newImage('verb4',POOL[CURRENT_POOL[1][1]][0])
+        .size(120,120)
+    ,
+    newText('verb4-text',CURRENT_POOL[1][1])
+    ,
+    newCanvas('trial-images-practice',340,360)
+        .center()
+        
+        // First Row
+        .add(0,0,getImage('verb1'))
+        .add(37,130,getText('verb1-text'))
+
+        .add(150,0,getImage('verb2'))
+        .add(190,130,getText('verb2-text'))
+
+        // Second Row
+        .add(0,150,getImage('verb3'))
+        .add(37,280,getText('verb3-text'))
+
+        .add(150,150,getImage('verb4'))
+        .add(190,280,getText('verb4-text'))
+
+        .print()
+    ,
+    newButton('start','Click here to start to the experiment')
+        .center()
+        .print()
+        .wait()    
+)
+
+newVar('trial-counter',1).global();
 Template('verb-table', row =>
     newTrial('reaction-time-exp',
+        getVar('trial-counter')._element.value % 20 == 0 ?[
+            newText('curr-trials',`You have completed ${getVar('trial-counter')}/${MASTER.length} trials.`)
+                .print()
+            ,
+            newTimer('break',10000)
+                .start()
+                .wait()
+            ,
+            newButton('continue','Click here to continue')
+                .print()
+                .wait()
+        ]:
+        []
+        ,
         newMediaRecorder('recorder','audio')
         ,
-        newImage('verb-image',row.Image)
+        newImage('verb-image',row.image)
             .center()
             .size(120,120)
         ,
@@ -328,12 +381,18 @@ Template('verb-table', row =>
         getMediaRecorder('recorder')
             .stop()
         ,
-        newTimer("cooldown",1000)
+        newTimer("cooldown",1950)
 			.start()
 			.wait()
+        ,
+        newText('explanation', `<p>The correct answer is <b>${row.verb}</b>.</p>`)
+            .print("center at 50vw", "middle at 50vh")
+        ,
+        getVar('trial-counter')
+            .set(v=>v+1)
     )
-    .log('type',row.Type)
-    .log('verb',row.Verb)
+    .log('type',row.type)
+    .log('verb',row.verb)
 );
 
 UploadRecordings('upload');
