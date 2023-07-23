@@ -94,18 +94,22 @@ function generateTable(wordArray,n){
 
 /** This function returns a table in a comma separated value string format,
  * so that it can be used by the PCIbex addTable function. 'list' is an
- * array of strings. The columns of this list will be 'verb,image,type'.
+ * array of strings. The columns of this list will be 'number,verb,image,type'.
  * Verb is the actual verb, image is the file name of the corresponding, and 
- * type can be either 'unacc' or 'unerg', depending on the verb.
+ * type can be either 'unacc' or 'unerg', depending on the verb. number is simply 
+ * the number of rows. keep in mind that the first header row will not count,
+ * so the second row starts as 1.
  */
 function tableToCsv(masterTable,corresp){
-    let res = 'verb,image,type\n';
+    let res = 'number,verb,image,type\n';
+    let counter = 1;
 
     for (let i = 0; i < masterTable.length -1;i++){
-        res += `${masterTable[i]},${corresp[masterTable[i]][0]},${corresp[masterTable[i]][1]}\n`;
+        res += `${counter},${masterTable[i]},${corresp[masterTable[i]][0]},${corresp[masterTable[i]][1]}\n`;
+        counter++;
     }
     let lastIndex = masterTable.length - 1;
-    res += `${masterTable[lastIndex]},${corresp[masterTable[lastIndex]][0]},${corresp[masterTable[lastIndex]][1]}`;
+    res += `${counter},${masterTable[lastIndex]},${corresp[masterTable[lastIndex]][0]},${corresp[masterTable[lastIndex]][1]}`;
     return res;
 }
 /**
@@ -333,36 +337,25 @@ newTrial('start',
 
         .print()
     ,
+    newText('warning', '<p> While you should always try to say the correct verb, <b>it is OK if you make a mistake</b>.</p>')
+        .print()
+    ,
     newButton('start','Click here to start to the experiment')
         .center()
         .print()
         .wait()    
 )
 
-newVar('trial-counter',1).global();
+
 Template('verb-table', row =>
     newTrial('reaction-time-exp',
-        getVar('trial-counter')._element.value % 20 == 0 ?[
-            newText('curr-trials',`You have completed ${getVar('trial-counter')}/${MASTER.length} trials.`)
-                .print()
-            ,
-            newTimer('break',10000)
-                .start()
-                .wait()
-            ,
-            newButton('continue','Click here to continue')
-                .print()
-                .wait()
-        ]:
-        []
-        ,
         newMediaRecorder('recorder','audio')
         ,
         newImage('verb-image',row.image)
             .center()
             .size(120,120)
         ,
-        newTimer('recording-timer',2000)
+        newTimer('recording-timer',1800)
         ,
         newTimer('timer',160)
             .start()
@@ -381,15 +374,30 @@ Template('verb-table', row =>
         getMediaRecorder('recorder')
             .stop()
         ,
-        newTimer("cooldown",1950)
-			.start()
-			.wait()
-        ,
         newText('explanation', `<p>The correct answer is <b>${row.verb}</b>.</p>`)
             .print("center at 50vw", "middle at 50vh")
         ,
-        getVar('trial-counter')
-            .set(v=>v+1)
+        newTimer("cooldown",1400)
+			.start()
+			.wait()
+        
+        ,
+        row.number % 20 == 0 ? [
+            clear()
+            ,
+            newText('curr-trials',`<p>You have completed ${row.number}/${MASTER.length} trials. The experiment will resume in 10 seconds.</p>`)
+                .center()
+                .print()
+            ,
+            newTimer('break',10000)
+                .start()
+                .wait()
+            ,
+            newButton('continue','Click here to continue')
+                .center()
+                .print()
+                .wait()
+        ]: []
     )
     .log('type',row.type)
     .log('verb',row.verb)
