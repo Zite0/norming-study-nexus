@@ -89,7 +89,9 @@ function generateTable(wordArray,n){
         res = res.concat(generateBlock(wordArray));
     }
 
-    return res
+    shuffle(array);
+
+    return res;
 }
 
 /** This function returns a table in a comma separated value string format,
@@ -161,7 +163,7 @@ InitiateRecorder('TODO: SERVER-URL-HERE','').label('init-recorder');
 
 // Wait for functions to run.
 newTrial('wait',
-    newTimer('counter',310)
+    newTimer('counter',350)
         .start()
         .wait()
 )
@@ -382,7 +384,7 @@ Template('verb-table', row =>
 			.wait()
         
         ,
-        row.number % 20 == 0 ? [
+        (row.number % 40 == 0) && (row.number != MASTER.length) ? [
             clear()
             ,
             newText('curr-trials',`<p>You have completed ${row.number}/${MASTER.length} trials. The experiment will resume in 10 seconds.</p>`)
@@ -393,10 +395,11 @@ Template('verb-table', row =>
                 .start()
                 .wait()
             ,
-            newButton('continue','Click here to continue')
+            newButton('trial-break-button','Click here to continue')
                 .center()
                 .print()
                 .wait()
+                .log()
         ]: []
     )
     .log('type',row.type)
