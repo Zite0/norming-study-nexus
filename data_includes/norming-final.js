@@ -1,4 +1,5 @@
-PennController.ResetPrefix();
+PennController.ResetPrefix(null);
+DebugOff();
 
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
@@ -89,9 +90,7 @@ function generateTable(wordArray,n){
         res = res.concat(generateBlock(wordArray));
     }
 
-    shuffle(array);
-
-    return res;
+    return res
 }
 
 /** This function returns a table in a comma separated value string format,
@@ -152,18 +151,18 @@ const POOL = {
 }
 
 const CURRENT_POOL = generateRandomCombination(UNACC,UNERG,2);
-const MASTER = generateTable(CURRENT_POOL,5);
+const MASTER = generateTable(CURRENT_POOL,2);
 const TABLE = tableToCsv(MASTER,POOL);
 const PRACTICE = makePracticeTable(CURRENT_POOL);
 
 
 
-Sequence('wait','welcome-message','mic-setup','init-recorder','instructions','images','practice','start','reaction-time-exp','upload');
-InitiateRecorder('TODO: SERVER-URL-HERE','').label('init-recorder');
+Sequence('wait','welcome-message','mic-setup','init-recorder','instructions','images','practice','start','reaction-time-exp','thank-you-page','upload');
+InitiateRecorder('SERVER URL HERE').label('init-recorder');
 
 // Wait for functions to run.
 newTrial('wait',
-    newTimer('counter',350)
+    newTimer('counter',310)
         .start()
         .wait()
 )
@@ -195,7 +194,7 @@ newTrial('instructions',
     newHtml('text','instr1.html')
         .print()
     ,
-    newButton('begin','Click here to continue')
+    newButton('continue','Click here to continue')
         .center()
         .print()
         .wait()
@@ -205,12 +204,21 @@ newTrial('instructions',
     newHtml('text2','instr2.html')
         .print()
     ,
-    getButton('begin')
+    getButton('continue')
         .center()
         .print()
         .wait()
     ,
     clear()
+    ,
+    newText('quick-as-possible','<p> You should try to say the correct verb as quickly as possible after the picture appears.</p>')
+        .center()
+        .print()
+    ,
+    getButton('continue')
+        .center()
+        .print()
+        .wait()
 );
 
 newTrial('images',
@@ -248,11 +256,11 @@ newTrial('images',
         .add(190,130,getText('verb2-text'))
 
         // Second Row
-        .add(0,150,getImage('verb3'))
-        .add(37,280,getText('verb3-text'))
+        .add(0,165,getImage('verb3'))
+        .add(37,295,getText('verb3-text'))
 
-        .add(150,150,getImage('verb4'))
-        .add(190,280,getText('verb4-text'))
+        .add(150,1650,getImage('verb4'))
+        .add(190,295,getText('verb4-text'))
 
         .print()
 
@@ -280,7 +288,7 @@ Template('practice-table',row =>
             .center()
             .print()
         ,
-        newTimer('timer',2100)
+        newTimer('timer',1800)
             .start()
             .wait()
         ,
@@ -294,10 +302,10 @@ Template('practice-table',row =>
 )
 
 newTrial('start',
-    newText('practice',"<p>Every 20 trials, you will have a short break of 10 seconds, after which you'll see a button to continue with the experiment.</p>")
+    newText('practice',"<p>Every 40 trials, you will have a 10 second break, after which you'll see a button to continue with the experiment.</p>")
         .print()
     ,
-    newText('guide','<p>For reference, take a look at the verbs before you start: </p>')
+    newText('guide','<p>Take a final look at the verbs before you start: </p>')
         .print()
     ,
     newImage('verb1',POOL[CURRENT_POOL[0][0]][0])
@@ -348,6 +356,7 @@ newTrial('start',
         .wait()    
 )
 
+newVar("RT",0).global();
 
 Template('verb-table', row =>
     newTrial('reaction-time-exp',
@@ -357,7 +366,7 @@ Template('verb-table', row =>
             .center()
             .size(120,120)
         ,
-        newTimer('recording-timer',1800)
+        newTimer('recording-timer',2000)
         ,
         newTimer('timer',160)
             .start()
@@ -366,8 +375,12 @@ Template('verb-table', row =>
         getImage("verb-image")
             .print()
         ,
+        getVar('before-recorder').set( v => Date.now() )
+        ,
         getMediaRecorder("recorder")
             .record()
+        ,
+        getVar('after-recorder').set( v => Date.now())
         ,
         getTimer('recording-timer')
             .start()
@@ -379,15 +392,23 @@ Template('verb-table', row =>
         newText('explanation', `<p>The correct answer is <b>${row.verb}</b>.</p>`)
             .print("center at 50vw", "middle at 50vh")
         ,
-        newTimer("cooldown",1400)
+        newTimer("cooldown",1450)
 			.start()
 			.wait()
-        
+        ,
+        clear()
+        ,
+        newTimer('in-between-break',750)
+            .start()
+            .wait()
         ,
         (row.number % 40 == 0) && (row.number != MASTER.length) ? [
-            clear()
-            ,
+            
             newText('curr-trials',`<p>You have completed ${row.number}/${MASTER.length} trials. The experiment will resume in 10 seconds.</p>`)
+                .center()
+                .print()
+            ,
+            getText('curr-trials','<p>Remember: try to say the correct verb as quickly as possible after the picture appears.</p>')
                 .center()
                 .print()
             ,
@@ -404,6 +425,22 @@ Template('verb-table', row =>
     )
     .log('type',row.type)
     .log('verb',row.verb)
+    .log('before',getVar('before-recorder'))
+    .log('after',getVar('after-recorder'))
 );
+
+newTrial('thank-you-page',
+    newText('final-text',
+    '<p> Thank you for your participation.' 
+    + ' After this page, the audio files will be uploaded to the server.' 
+    + ' Do not close the page before they have been uploaded' 
+    + "(There will be a message that will tell you when it's done).</p>")
+        .center()
+        .print()
+    ,
+    newButton('end','Click here to end the experiment')
+        .print()
+        .wait()
+)
 
 UploadRecordings('upload');
