@@ -157,7 +157,9 @@ const PRACTICE = makePracticeTable(CURRENT_POOL);
 
 
 
-Sequence('wait','mobile-question','browser-instr','welcome-message','mic-setup','init-recorder','instructions','images','practice','start','reaction-time-exp','thank-you-page','upload');
+Sequence('wait','mobile-question','browser-instr','welcome-message','mic-setup','init-recorder','instructions',
+'images','practice','start','reaction-time-exp','thank-you-page','upload');
+
 InitiateRecorder('SERVER URL HERE').label('init-recorder');
 
 // Wait for functions to run.
@@ -353,7 +355,7 @@ newTrial('images',
         .add(0,165,getImage('verb3'))
         .add(37,295,getText('verb3-text'))
 
-        .add(150,1650,getImage('verb4'))
+        .add(150,150,getImage('verb4'))
         .add(190,295,getText('verb4-text'))
 
         .print()
@@ -433,11 +435,11 @@ newTrial('start',
         .add(190,130,getText('verb2-text'))
 
         // Second Row
-        .add(0,150,getImage('verb3'))
-        .add(37,280,getText('verb3-text'))
+        .add(0,165,getImage('verb3'))
+        .add(37,295,getText('verb3-text'))
 
         .add(150,150,getImage('verb4'))
-        .add(190,280,getText('verb4-text'))
+        .add(190,295,getText('verb4-text'))
 
         .print()
     ,
@@ -526,12 +528,13 @@ newTrial('thank-you-page',
     newText('final-text',
     '<p> Thank you for your participation.' 
     + ' After this page, the audio files will be uploaded to the server.' 
-    + ' Do not close the page before they have been uploaded' 
+    + ' Do not close the page before they have been uploaded ' 
     + "(There will be a message that will tell you when it's done).</p>")
         .center()
         .print()
     ,
     newButton('end','Click here to end the experiment')
+        .center()
         .print()
         .wait()
 )
