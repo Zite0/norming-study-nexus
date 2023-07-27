@@ -341,7 +341,7 @@ newTrial('images',
     newHtml('img-instr','verb-instr.html')
         .print()
     ,
-    newCanvas('trial-images-practice',340,360)
+    newCanvas('trial-images-practice',300,360)
         .center()
         
         // First Row
@@ -424,7 +424,7 @@ newTrial('start',
     ,
     newText('verb4-text',CURRENT_POOL[1][1])
     ,
-    newCanvas('trial-images-practice',340,360)
+    newCanvas('trial-images-practice',300,360)
         .center()
         
         // First Row
