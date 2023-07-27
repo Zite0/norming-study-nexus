@@ -151,13 +151,15 @@ const POOL = {
 }
 
 const CURRENT_POOL = generateRandomCombination(UNACC,UNERG,2);
-const MASTER = generateTable(CURRENT_POOL,2);
+const MASTER = generateTable(CURRENT_POOL,5);
 const TABLE = tableToCsv(MASTER,POOL);
 const PRACTICE = makePracticeTable(CURRENT_POOL);
 
 
 
-Sequence('wait','welcome-message','mic-setup','init-recorder','instructions','images','practice','start','reaction-time-exp','thank-you-page','upload');
+Sequence('wait','mobile-question','browser-instr','welcome-message','mic-setup','init-recorder','instructions',
+'images','practice','start','reaction-time-exp','thank-you-page','upload');
+
 InitiateRecorder('SERVER URL HERE').label('init-recorder');
 
 // Wait for functions to run.
@@ -179,6 +181,100 @@ newTrial('welcome-message',
 		.print()
 		.wait()
 );
+
+newTrial('mobile-question',
+    newButton('mobile','Mobile')
+    ,
+    newButton('computer','PC/Laptop/Mac')
+    ,
+    newButton('dummy','')
+    ,
+    newSelector('device')
+    ,
+    newText('selection',
+        "Please select the device you're using:")
+    ,
+    newCanvas('choice',500,90)
+        .add(109,30,getText('selection'))
+        .add(0, 85, getButton('mobile').selector('device') )
+        .add(400, 85, getButton('computer').selector('device') )
+        .center()
+        .print()
+    ,
+    getSelector('device')
+        .wait()
+    ,
+    getButton('mobile')
+        .test.clicked()
+        .success(
+            clear()
+            ,
+            newText('mobile-warning','<p>This experiment cannot be run on mobile '
+            + 'devices. Please use a laptop or desktop.</p>')
+                .center()
+                .print()
+            ,
+            getButton('dummy','')
+                .wait()
+        )
+);
+
+newTrial('browser-instr',
+    newText('prompt','Please select the browser you are using: ')
+    ,
+    newButton('safari','Safari')
+    ,
+    newButton('chrome','Chrome')
+    ,
+    newButton('fire','Firefox')
+    ,
+    newButton('other','Other')
+    ,
+    newButton('dummy','')
+    ,
+    newSelector('browser')
+    ,
+    newCanvas('choice',600,90)
+        .add(150,30,getText('prompt'))
+        .add(0,85,getButton('chrome').selector('browser'))
+        .add(173,85,getButton('safari').selector('browser'))
+        .add(352,85,getButton('fire').selector('browser'))
+        .add(520,85,getButton('other').selector('browser'))
+        .center()
+        .print()
+    ,
+    getSelector('browser')
+        .wait()
+    ,
+    getButton('safari')
+        .test.clicked()
+        .success(
+            clear()
+            ,
+            newText('warning','<p>This experiment cannot be run on Safari. '
+            + 'Please use Chrome or Firefox.</p>')
+                .center()
+                .print()
+            ,
+            getButton('dummy')
+                .wait()
+        )
+    ,
+    getButton('other')
+        .test.clicked()
+        .success(
+            clear()
+            ,
+            newText('other-warning', '<p>This experiment cannot be run'
+            + 'on a browser other than Chrome or Firefox. Please use one of those.</p>')
+                .center()
+                .print()
+            ,
+            getButton('dummy')
+                .wait()
+            )
+        
+)
 
 newTrial('mic-setup',
     newHtml('setup','mic-instr.html')
@@ -259,7 +355,7 @@ newTrial('images',
         .add(0,165,getImage('verb3'))
         .add(37,295,getText('verb3-text'))
 
-        .add(150,1650,getImage('verb4'))
+        .add(150,150,getImage('verb4'))
         .add(190,295,getText('verb4-text'))
 
         .print()
@@ -339,11 +435,11 @@ newTrial('start',
         .add(190,130,getText('verb2-text'))
 
         // Second Row
-        .add(0,150,getImage('verb3'))
-        .add(37,280,getText('verb3-text'))
+        .add(0,165,getImage('verb3'))
+        .add(37,295,getText('verb3-text'))
 
         .add(150,150,getImage('verb4'))
-        .add(190,280,getText('verb4-text'))
+        .add(190,295,getText('verb4-text'))
 
         .print()
     ,
@@ -403,7 +499,6 @@ Template('verb-table', row =>
             .wait()
         ,
         (row.number % 40 == 0) && (row.number != MASTER.length) ? [
-            
             newText('curr-trials',`<p>You have completed ${row.number}/${MASTER.length} trials. The experiment will resume in 10 seconds.</p>`)
                 .center()
                 .print()
@@ -433,12 +528,13 @@ newTrial('thank-you-page',
     newText('final-text',
     '<p> Thank you for your participation.' 
     + ' After this page, the audio files will be uploaded to the server.' 
-    + ' Do not close the page before they have been uploaded' 
+    + ' Do not close the page before they have been uploaded ' 
     + "(There will be a message that will tell you when it's done).</p>")
         .center()
         .print()
     ,
     newButton('end','Click here to end the experiment')
+        .center()
         .print()
         .wait()
 )
